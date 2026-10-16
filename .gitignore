@@ -6,3 +6,5 @@ obj/
 aws-lambda-tools-defaults.json
 *.config.local
 .env
+node_modules/
+dist/

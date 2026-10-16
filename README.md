@@ -4,7 +4,7 @@ An inventory management system for a polymer (plastics) trading desk. It tracks 
 
 **[▶ Try the live demo](https://OWNER.github.io/REPO/)**: no sign-up, just pick a role.
 
-![Original AWS architecture](docs/aws-architecture.png)
+![Original AWS architecture](public/docs/aws-architecture.png)
 
 ## The problem
 
@@ -47,23 +47,34 @@ The demo also keeps the original database's rules:
 
 The database started as a whiteboard sketch:
 
-![Whiteboard ERD](docs/whiteboard-erd.jpg)
+![Whiteboard ERD](public/docs/whiteboard-erd.jpg)
 
 ## How this demo works
 
-The AWS environment has been shut down, so this repo recreates the app as a **static site** that runs entirely in the browser:
+The AWS environment has been shut down, so this repo rebuilds the app in **React** as a static site that runs entirely in the browser:
 
-- `index.html` and `assets/`: the demo app, in plain HTML, CSS and JavaScript with no build step
-- `assets/data.js`: the original sample data, converted from the SQL load scripts
+- **React 18 + Vite**, with React Router (hash routing, so deep links work on GitHub Pages)
+- `src/lib/schema.js` describes every table, plus the original database's rules and cascades
+- `src/data/seed.js` is the original sample data, converted from the SQL load scripts
 - Your changes are saved in your browser's local storage. Use **Reset demo data** to start over.
+- Every push to `main` builds the site and publishes it to GitHub Pages (`.github/workflows/deploy.yml`)
 
-To run it locally, open `index.html` in a browser. No server is needed.
+### Run it locally
+
+```bash
+npm install
+npm run dev
+```
 
 ## Repository layout
 
 ```
-index.html, assets/        The live demo (served by GitHub Pages)
-docs/                      Architecture diagram and whiteboard ERD
+src/                       The React app
+  pages/                   Dashboard, Records, Reports, Workflow, Users, About, Login
+  components/              Layout, data table, record form, icons
+  lib/                     Table definitions, rules and formatting
+  store.jsx                App state (data, role, users) saved to local storage
+public/docs/               Architecture diagram and whiteboard ERD
 original/database/         SQL Server scripts: schema, triggers, lookup data, sample data
 original/lambda-functions/ C# AWS Lambda functions (entities, reports, users, auth)
 ```

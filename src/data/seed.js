@@ -1,5 +1,5 @@
 // Seed data converted from the original SQL Server load scripts (all names are fictional).
-window.SEED = {
+const SEED = {
  "trader": [
   {
    "trader_id": 1,
@@ -2779,3 +2779,4 @@ window.SEED = {
   }
  ]
 };
+export default SEED;
