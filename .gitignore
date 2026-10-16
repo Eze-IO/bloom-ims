@@ -1,0 +1,8 @@
+.DS_Store
+bin/
+obj/
+.vs/
+*.user
+aws-lambda-tools-defaults.json
+*.config.local
+.env
