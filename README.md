@@ -2,7 +2,7 @@
 
 An inventory management system for a polymer (plastics) trading desk. It tracks product lots in warehouses, purchase and sale contracts, ocean shipments, letters of credit, and the profit on every deal.
 
-**[▶ Try the live demo](https://OWNER.github.io/REPO/)**: no sign-up, just pick a role.
+**[▶ Try the live demo](https://eze-io.github.io/bloom-ims/)**: no sign-up, just pick a role.
 
 ![Original AWS architecture](public/docs/aws-architecture.png)
 

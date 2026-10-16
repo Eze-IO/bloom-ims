@@ -1,7 +1,6 @@
 import { PageHead } from "../components/Layout.jsx";
 
-// Set this after the GitHub repo is created.
-const REPO_URL = "https://github.com/";
+const REPO_URL = "https://github.com/Eze-IO/bloom-ims";
 
 export default function About() {
   return (
