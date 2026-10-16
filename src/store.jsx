@@ -3,9 +3,9 @@ import SEED from "./data/seed.js";
 import { KEYS, dependents } from "./lib/schema.js";
 
 // All demo state lives in the browser. Storage access is wrapped because private windows can throw.
-const DATA_KEY = "harborline-ims:data:v1";
-const SESSION_KEY = "harborline-ims:session:v1";
-const USERS_KEY = "harborline-ims:users:v1";
+const DATA_KEY = "bloom-ims:data:v1";
+const SESSION_KEY = "bloom-ims:session:v1";
+const USERS_KEY = "bloom-ims:users:v1";
 
 const load = (key) => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } };
 const persist = (key, val) => { try { val == null ? localStorage.removeItem(key) : localStorage.setItem(key, JSON.stringify(val)); } catch { /* ignore */ } };
@@ -19,10 +19,10 @@ function freshData() {
 }
 
 const SEED_USERS = [
-  { name: "Dana Whitfield", email: "dana@harborline.example", role: "admin", confirmed: true },
-  { name: "Marco Ilves", email: "marco@harborline.example", role: "editor", confirmed: true },
-  { name: "Priya Nandakumar", email: "priya@harborline.example", role: "editor", confirmed: true },
-  { name: "Sam Okafor", email: "sam@harborline.example", role: "viewer", confirmed: false },
+  { name: "Dana Whitfield", email: "dana@bloom.example", role: "admin", confirmed: true },
+  { name: "Marco Ilves", email: "marco@bloom.example", role: "editor", confirmed: true },
+  { name: "Priya Nandakumar", email: "priya@bloom.example", role: "editor", confirmed: true },
+  { name: "Sam Okafor", email: "sam@bloom.example", role: "viewer", confirmed: false },
 ];
 
 const StoreContext = createContext(null);

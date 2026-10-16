@@ -1,4 +1,4 @@
-# Harborline IMS
+# Bloom IMS
 
 An inventory management system for a polymer (plastics) trading desk. It tracks product lots in warehouses, purchase and sale contracts, ocean shipments, letters of credit, and the profit on every deal.
 
@@ -91,4 +91,4 @@ Rereading the 2020 code with fresh eyes, these are the improvements I'd make nex
 
 ## Note on names
 
-The company has been renamed to "Harborline", and every person, company and figure in the data is fictional.
+The company has been renamed to "Bloom", and every person, company and figure in the data is fictional.

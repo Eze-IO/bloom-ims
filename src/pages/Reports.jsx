@@ -60,7 +60,7 @@ function downloadCsv(rep, rows) {
   ];
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
-  a.download = `harborline-${rep.id}.csv`;
+  a.download = `bloom-${rep.id}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }

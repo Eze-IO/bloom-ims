@@ -7,19 +7,19 @@
 use master;
 go
 
-if exists (select name from master.sys.databases where name='harborline_records')
+if exists (select name from master.sys.databases where name='bloom_records')
 begin
-    drop database harborline_records;
+    drop database bloom_records;
 end
 else
 begin
-    create database harborline_records;
+    create database bloom_records;
 end;
 
 --Start creation of tables
 begin transaction;
 
-use harborline_records;
+use bloom_records;
 
 --Tables
 create table product (
@@ -167,7 +167,7 @@ commit transaction;
 
 --Constraints
 
-use harborline_records;
+use bloom_records;
 go
 
 -- Foreign Keys

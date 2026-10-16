@@ -3,7 +3,7 @@
     -Cloud Computing Consultants
 */
 
-use harborline_records;
+use bloom_records;
 go
 
 begin transaction;

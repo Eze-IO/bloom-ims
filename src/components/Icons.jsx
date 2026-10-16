@@ -20,8 +20,10 @@ export function Logo() {
   return (
     <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
       <rect width="32" height="32" rx="8" fill="#22b8cf" />
-      <path d="M6 20c3 0 3-2 5-2s2 2 5 2 3-2 5-2 2 2 5 2M6 25c3 0 3-2 5-2s2 2 5 2 3-2 5-2 2 2 5 2M10 15V7h3v4h6V7h3v8"
-        fill="none" stroke="#04161c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <g fill="#04161c" transform="translate(16 16)">
+        {[0, 72, 144, 216, 288].map((a) => <ellipse key={a} cx="0" cy="-6.5" rx="3.6" ry="5.6" transform={`rotate(${a})`} opacity=".85" />)}
+        <circle r="3" fill="#22b8cf" stroke="#04161c" strokeWidth="1.5" />
+      </g>
     </svg>
   );
 }
@@ -30,7 +32,7 @@ export function Brand() {
   return (
     <div className="brand">
       <Logo />
-      <div>Harborline IMS<small>POLYMER TRADING</small></div>
+      <div>Bloom IMS<small>POLYMER TRADING</small></div>
     </div>
   );
 }

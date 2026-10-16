@@ -5,7 +5,7 @@
 
 begin transaction;
 
-use harborline_records;
+use bloom_records;
 go
 
 -- trader

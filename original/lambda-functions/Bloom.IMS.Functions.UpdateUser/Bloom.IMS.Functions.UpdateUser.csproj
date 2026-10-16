@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <AWSProjectType>Lambda</AWSProjectType>
+    <AssemblyName>lib</AssemblyName>
+    <RootNamespace>Bloom.IMS.Function</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.Core" Version="1.1.0" />
+    <PackageReference Include="Amazon.Lambda.Serialization.Json" Version="1.7.0" />
+    <PackageReference Include="AWSSDK.CognitoIdentityProvider" Version="3.3.109.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bloom.IMS.Functions.Tools\Bloom.IMS.Functions.Tools.csproj" />
+  </ItemGroup>
+</Project>

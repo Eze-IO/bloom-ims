@@ -44,7 +44,7 @@ export default function Layout() {
       <div>
         <div className="mobile-bar">
           <button onClick={() => setNavOpen((o) => !o)} aria-label="Open menu" aria-expanded={navOpen}>☰</button>
-          Harborline IMS
+          Bloom IMS
         </div>
         <main className="main">
           <div className="banner">
