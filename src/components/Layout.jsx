@@ -14,13 +14,13 @@ const NAV = [
 ];
 
 export default function Layout() {
-  const { session, signOut, resetData, toast } = useStore();
+  const { session, signOut, resetData, downloadDb, toast } = useStore();
   const [navOpen, setNavOpen] = useState(false);
   const role = ROLES[session.role];
 
-  const reset = () => {
+  const reset = async () => {
     if (!confirm("Put all demo data back the way it started?")) return;
-    resetData();
+    await resetData();
     toast("Demo data reset");
   };
 
@@ -48,8 +48,11 @@ export default function Layout() {
         </div>
         <main className="main">
           <div className="banner">
-            Demo mode: all data is fictional and your changes stay in this browser.
-            <button onClick={reset}>Reset demo data</button>
+            Demo mode: the data is a real SQLite database running in your browser. It's fictional, and your changes stay on this device.
+            <span style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
+              <button onClick={downloadDb}>Download .sqlite</button>
+              <button onClick={reset}>Reset demo data</button>
+            </span>
           </div>
           <Outlet />
         </main>

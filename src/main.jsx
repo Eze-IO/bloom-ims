@@ -14,7 +14,9 @@ import "./styles.css";
 
 // Hash routing, because GitHub Pages can't rewrite deep links like /records/inventory to index.html.
 function App() {
-  const { session } = useStore();
+  const { session, ready, loadError } = useStore();
+  if (loadError) return <p className="loading" role="alert">Couldn't open the database: {loadError}</p>;
+  if (!ready) return <p className="loading" role="status">Opening the SQLite database…</p>;
   if (!session) return <Login />;
   return (
     <Routes>

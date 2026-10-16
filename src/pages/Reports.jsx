@@ -1,48 +1,63 @@
+import { useMemo } from "react";
 import { NavLink, useParams } from "react-router-dom";
 import { useStore } from "../store.jsx";
-import { find, label } from "../lib/schema.js";
 import { Signed, money, qty } from "../lib/format.jsx";
 import { PageHead } from "../components/Layout.jsx";
 
-function groupSum(rows, keyFn, fields) {
-  const m = new Map();
-  for (const r of rows) {
-    const k = keyFn(r);
-    const g = m.get(k) || { key: k, count: 0, ...Object.fromEntries(fields.map((f) => [f, 0])) };
-    g.count++;
-    fields.forEach((f) => { g[f] += +r[f] || 0; });
-    m.set(k, g);
-  }
-  return [...m.values()];
-}
-
+// Each report is a SQL query against bloom.sqlite.
 // Column kinds: "$" money, "±" signed money, "q" quantity, "n" count, undefined = text.
 const REPORTS = [
   { id: "pnl", title: "Profit by customer", desc: "Deal results grouped by the customer on each letter of credit.",
-    run: (db) => groupSum(db.link, (l) => find(db, "lc", l.lc_id)?.customer || "No LC", ["purchase", "sale", "fees", "gross"]).sort((a, b) => b.gross - a.gross),
-    cols: [["key", "Customer"], ["count", "Deals", "n"], ["purchase", "Purchases", "$"], ["sale", "Sales", "$"], ["fees", "Fees", "$"], ["gross", "Gross P&L", "±"]] },
+    sql: `SELECT COALESCE(lc.customer, 'No LC')  AS customer,
+       COUNT(*)                          AS deals,
+       SUM(link.purchase)                AS purchases,
+       SUM(link.sale)                    AS sales,
+       SUM(COALESCE(link.fees, 0))       AS fees,
+       SUM(link.gross)                   AS gross
+FROM link
+LEFT JOIN lc ON lc.lc_id = link.lc_id
+GROUP BY customer
+ORDER BY gross DESC;`,
+    cols: [["customer", "Customer"], ["deals", "Deals", "n"], ["purchases", "Purchases", "$"], ["sales", "Sales", "$"], ["fees", "Fees", "$"], ["gross", "Gross P&L", "±"]] },
   { id: "stock", title: "Stock by warehouse and product", desc: "Total quantity on hand for each product in each warehouse.",
-    run: (db) => groupSum(db.inventory, (i) => `${label(db, "warehouse", i.warehouse_id) || "Unknown"}|${find(db, "product", i.product_id)?.grade || "Unknown"}`, ["quantity"])
-      .map((g) => ({ ...g, wh: g.key.split("|")[0], grade: g.key.split("|")[1] }))
-      .sort((a, b) => a.wh.localeCompare(b.wh) || b.quantity - a.quantity),
-    cols: [["wh", "Warehouse"], ["grade", "Product"], ["count", "Lots", "n"], ["quantity", "Quantity (MT)", "q"]] },
+    sql: `SELECT w.location_desc   AS warehouse,
+       p.grade           AS product,
+       COUNT(*)          AS lots,
+       SUM(i.quantity)   AS quantity
+FROM inventory i
+JOIN warehouse w ON w.warehouse_id = i.warehouse_id
+JOIN product   p ON p.product_id   = i.product_id
+GROUP BY warehouse, product
+ORDER BY warehouse, quantity DESC;`,
+    cols: [["warehouse", "Warehouse"], ["product", "Product"], ["lots", "Lots", "n"], ["quantity", "Quantity (MT)", "q"]] },
   { id: "ports", title: "Shipments by destination", desc: "Bills of lading grouped by port of discharge.",
-    run: (db) => {
-      const arrived = db.bl_status.find((s) => s.bl_status_type === "arrived")?.bl_status_id;
-      const rows = db.bl.map((b) => ({ ...b, atSea: b.bl_status_id != arrived ? 1 : 0, done: b.bl_status_id == arrived ? 1 : 0 }));
-      return groupSum(rows, (b) => b.port_of_discharge || "Unknown", ["atSea", "done"]).sort((a, b) => b.count - a.count);
-    },
-    cols: [["key", "Port of discharge"], ["count", "Shipments", "n"], ["atSea", "At sea", "n"], ["done", "Arrived", "n"]] },
+    sql: `SELECT COALESCE(bl.port_of_discharge, 'Unknown')            AS port,
+       COUNT(*)                                             AS shipments,
+       SUM(COALESCE(s.bl_status_type, '') <> 'arrived')     AS at_sea,
+       SUM(COALESCE(s.bl_status_type, '') = 'arrived')      AS arrived
+FROM bl
+LEFT JOIN bl_status s ON s.bl_status_id = bl.bl_status_id
+GROUP BY port
+ORDER BY shipments DESC;`,
+    cols: [["port", "Port of discharge"], ["shipments", "Shipments", "n"], ["at_sea", "At sea", "n"], ["arrived", "Arrived", "n"]] },
   { id: "agents", title: "Agent commissions by country", desc: "Commission totals for agents in each country.",
-    run: (db) => groupSum(db.agent, (a) => a.agent_country || "Unknown", ["agent_commission"]).sort((a, b) => b.agent_commission - a.agent_commission),
-    cols: [["key", "Country"], ["count", "Agents", "n"], ["agent_commission", "Commission", "$"]] },
+    sql: `SELECT agent_country          AS country,
+       COUNT(*)               AS agents,
+       SUM(agent_commission)  AS commission
+FROM agent
+GROUP BY country
+ORDER BY commission DESC;`,
+    cols: [["country", "Country"], ["agents", "Agents", "n"], ["commission", "Commission", "$"]] },
   { id: "counterparties", title: "Contracts by counterparty", desc: "How many contracts each buyer or seller has, and how many are still open.",
-    run: (db) => {
-      const done = db.contract_status.find((s) => s.contract_status_desc === "complete")?.contract_status_id;
-      const rows = db.contract.map((c) => ({ ...c, open: c.contract_status_id != done ? 1 : 0 }));
-      return groupSum(rows, (c) => label(db, "counterparty", c.counterparty_id) || "Unknown", ["open"]).sort((a, b) => b.count - a.count);
-    },
-    cols: [["key", "Counterparty"], ["count", "Contracts", "n"], ["open", "Open", "n"]] },
+    sql: `SELECT cp.counterparty_name                                         AS counterparty,
+       COUNT(*)                                                     AS contracts,
+       SUM(COALESCE(cs.contract_status_desc, '') <> 'complete')     AS open
+FROM contract c
+JOIN counterparty cp         ON cp.counterparty_id   = c.counterparty_id
+LEFT JOIN contract_status cs ON cs.contract_status_id = c.contract_status_id
+GROUP BY counterparty
+ORDER BY contracts DESC, counterparty;`,
+    cols: [["counterparty", "Counterparty"], ["contracts", "Contracts", "n"], ["open", "Open", "n"]] },
 ];
 
 function fmt(kind, v) {
@@ -67,13 +82,14 @@ function downloadCsv(rep, rows) {
 
 export default function Reports() {
   const { report } = useParams();
-  const { db } = useStore();
+  const { db, query } = useStore();
   const rep = REPORTS.find((r) => r.id === report) || REPORTS[0];
-  const rows = rep.run(db);
+  // `db` changes after every write, so reports re-run against the latest data.
+  const rows = useMemo(() => query(rep.sql), [rep, db]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      <PageHead title="Reports" subtitle="Summaries the trading desk used to ask for by email." />
+      <PageHead title="Reports" subtitle="SQL queries run live against the SQLite database." />
       <nav className="tabs" aria-label="Reports">
         {REPORTS.map((r) => <NavLink key={r.id} to={`/reports/${r.id}`} className={r === rep ? "active" : ""}>{r.title}</NavLink>)}
       </nav>
@@ -86,12 +102,16 @@ export default function Reports() {
           <table>
             <thead><tr>{rep.cols.map(([f, l, k]) => <th key={f} className={k ? "num" : ""}>{l}</th>)}</tr></thead>
             <tbody>
-              {rows.length ? rows.map((r) => (
-                <tr key={r.key}>{rep.cols.map(([f, , k]) => <td key={f} className={k ? "num" : ""}>{fmt(k, r[f])}</td>)}</tr>
+              {rows.length ? rows.map((r, i) => (
+                <tr key={i}>{rep.cols.map(([f, , k]) => <td key={f} className={k ? "num" : ""}>{fmt(k, r[f])}</td>)}</tr>
               )) : <tr><td className="empty" colSpan={rep.cols.length}>Nothing to report.</td></tr>}
             </tbody>
           </table>
         </div>
+        <details className="sql">
+          <summary>Show the SQL</summary>
+          <pre><code>{rep.sql}</code></pre>
+        </details>
       </section>
     </>
   );

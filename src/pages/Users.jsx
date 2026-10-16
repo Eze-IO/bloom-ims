@@ -3,17 +3,13 @@ import { ROLES } from "../lib/schema.js";
 import { PageHead } from "../components/Layout.jsx";
 
 export default function Users() {
-  const { session, users, setUsers, toast } = useStore();
+  const { session, users, updateUser, removeUser, toast } = useStore();
   const admin = session.role === "admin";
 
-  const update = (i, patch, msg) => {
-    setUsers((list) => list.map((u, j) => (j === i ? { ...u, ...patch } : u)));
-    toast(msg);
-  };
+  const update = (i, patch, msg) => toast(updateUser(users[i].email, patch) || msg);
   const remove = (i) => {
     if (!confirm(`Remove ${users[i].name}?`)) return;
-    setUsers((list) => list.filter((_, j) => j !== i));
-    toast("User removed");
+    toast(removeUser(users[i].email) || "User removed");
   };
 
   return (

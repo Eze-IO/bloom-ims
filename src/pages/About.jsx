@@ -23,9 +23,11 @@ export default function About() {
             <li><strong>S3</strong> for configuration, profile pictures and database backups</li>
           </ul>
           <h2 style={{ marginTop: 16 }}>This demo</h2>
-          <p>The AWS stack has been retired, so this version rebuilds the app in <strong>React</strong> as a static site that runs entirely
-            in your browser. It uses the same tables, sample data and database rules (quantity limits, date checks, and the cascade deletes
-            the triggers performed). The company name and people are fictional.</p>
+          <p>The AWS stack has been retired, so this version rebuilds the app in <strong>React</strong> as a static site. The data now lives
+            in a <strong>SQLite</strong> database file that opens right in your browser (via sql.js). Every screen reads it and every edit
+            writes to it with SQL. The database enforces the original rules itself: foreign keys, quantity and date checks, and
+            <code> ON DELETE CASCADE</code> in place of the old triggers. Your edits are saved on your device, and you can download
+            the <code>.sqlite</code> file to open in any SQLite tool. The company name and people are fictional.</p>
         </section>
         <section className="card card-pad prose">
           <h2>Original AWS architecture</h2>

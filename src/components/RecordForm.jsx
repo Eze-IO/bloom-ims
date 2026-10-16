@@ -24,6 +24,7 @@ export default function RecordForm({ ent, row, onClose }) {
 
   const [values, setValues] = useState(() => Object.fromEntries(cols.map((c) => [c.k, toInput(row?.[c.k])])));
   const [errors, setErrors] = useState({});
+  const [formError, setFormError] = useState(null);
   const firstField = useRef(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
@@ -51,13 +52,15 @@ export default function RecordForm({ ent, row, onClose }) {
 
   const submit = (e) => {
     e.preventDefault();
+    setFormError(null);
     const data = readValues(values);
     const errs = {};
     cols.forEach((c) => { if (c.req && data[c.k] == null) errs[c.k] = "Required."; });
     Object.assign(errs, ent.validate ? ent.validate(data) : {});
     setErrors(errs);
     if (Object.keys(errs).length) return;
-    saveRecord(ent.id, row, data, idCol?.k);
+    const dbError = saveRecord(ent.id, row, data);
+    if (dbError) return setFormError(`The database rejected this: ${dbError}`);
     onClose();
     toast(isNew ? "Record added" : "Changes saved");
   };
@@ -66,15 +69,16 @@ export default function RecordForm({ ent, row, onClose }) {
     const deps = dependents(db, ent.id, row);
     const blocking = deps.filter((d) => !d.cascade);
     if (blocking.length) {
-      alert(`This can't be deleted yet: ${blocking.map((d) => `${d.n} ${ENTITY[d.table].title.toLowerCase()}`).join(", ")} still point to it.\n\nThe original database's foreign keys would block this too.`);
+      alert(`This can't be deleted yet: ${blocking.map((d) => `${d.n} ${ENTITY[d.table].title.toLowerCase()}`).join(", ")} still point to it.\n\nThe database's foreign keys block this delete.`);
       return;
     }
     const casc = deps.find((d) => d.cascade);
     const msg = casc
-      ? `Delete this record and its ${casc.n} linked contract${casc.n > 1 ? "s" : ""}?\n\n(The original database did the same thing with a trigger.)`
+      ? `Delete this record and its ${casc.n} linked contract${casc.n > 1 ? "s" : ""}?\n\n(The database cascades this delete with ON DELETE CASCADE.)`
       : "Delete this record?";
     if (!confirm(msg)) return;
     const res = deleteRecord(ent.id, row);
+    if (res.error) return setFormError(`The database refused: ${res.error}`);
     onClose();
     toast(res.cascaded ? `Deleted, plus ${res.cascaded} contract${res.cascaded > 1 ? "s" : ""}` : "Deleted");
   };
@@ -114,6 +118,7 @@ export default function RecordForm({ ent, row, onClose }) {
             </label>
           ))}
         </div>
+        {formError && <p className="err" role="alert" style={{ margin: "0 20px 14px", fontSize: 13 }}>{formError}</p>}
         <footer>
           {!isNew && !ro && <button type="button" className="danger left" onClick={remove}>Delete</button>}
           <button type="button" onClick={onClose}>{ro ? "Close" : "Cancel"}</button>
