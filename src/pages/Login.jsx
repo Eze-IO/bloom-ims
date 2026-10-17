@@ -16,7 +16,7 @@ export default function Login() {
           <p>An inventory management system for a plastics trading desk. It tracks product lots, contracts,
             ocean shipments, letters of credit and profit per deal.</p>
         </div>
-        <p style={{ fontSize: 12 }}>Portfolio demo · originally built on AWS with Angular, .NET Lambda functions and SQL Server.</p>
+        <p style={{ fontSize: 12 }}>Portfolio demo · runs on React and SQLite (sql.js) in your browser, hosted on GitHub Pages. Originally built on AWS with Angular, .NET Lambda functions and SQL Server.</p>
       </section>
       <section className="login-form">
         <form className="card" onSubmit={(e) => { e.preventDefault(); signIn(role); }}>

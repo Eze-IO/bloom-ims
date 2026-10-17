@@ -4,7 +4,35 @@ An inventory management system for a polymer (plastics) trading desk. It tracks 
 
 **[▶ Try the live demo](https://eze-io.github.io/bloom-ims/)**: no sign-up, just pick a role.
 
-![Original AWS architecture](public/docs/aws-architecture.png)
+**Built with:** React 18 · Vite · SQLite (sql.js / WebAssembly) · IndexedDB · GitHub Pages · GitHub Actions
+
+## How it runs today
+
+```mermaid
+flowchart LR
+  subgraph deploy["Build and deploy"]
+    direction BT
+    repo["GitHub repo<br/>push to main"] --> actions["GitHub Actions<br/>npm ci · vite build"] --> pages["GitHub Pages<br/>static hosting"]
+  end
+  subgraph browser["Your browser"]
+    file[("bloom.sqlite<br/>the database file")] -->|opens| engine["SQLite engine<br/>sql.js · WebAssembly"]
+    engine <-->|saves / reloads| idb[("IndexedDB<br/>your saved edits")]
+    store["App store<br/>parameterized SQL"] <-->|SQL| engine
+    ui["React 18 UI<br/>Dashboard · Records · Reports"] <-->|rows| store
+  end
+  pages -->|app + data| file
+```
+
+| Layer | Today | Original (2020, AWS) |
+| --- | --- | --- |
+| **Front end** | React 18 + Vite, React Router | Angular on Elastic Beanstalk |
+| **Database** | SQLite (bloom.sqlite) via sql.js / WebAssembly | Microsoft SQL Server on Amazon RDS |
+| **Data access** | Parameterized SQL in the browser | C# Lambda functions behind API Gateway |
+| **Business rules** | SQLite foreign keys, CHECK constraints, ON DELETE CASCADE | SQL Server constraints + cascade-delete triggers |
+| **Saving edits** | IndexedDB in each visitor's browser | Shared RDS database |
+| **Users and roles** | Demo roles + app_user table | Amazon Cognito user pools |
+| **Hosting** | GitHub Pages | Elastic Beanstalk, CloudFront, Route 53 |
+| **Deploys** | GitHub Actions on every push to main | AWS Lambda tools and Elastic Beanstalk deploys |
 
 ## The problem
 
@@ -43,6 +71,8 @@ The data lives in a real **SQLite database**, and the database itself enforces t
 | API | API Gateway + AWS Lambda functions in C# / .NET Core |
 | Database | Microsoft SQL Server on Amazon RDS, in a private subnet |
 | Storage | Amazon S3 for configuration, profile pictures and database backups |
+
+![Original AWS architecture](public/docs/aws-architecture.png)
 
 The database started as a whiteboard sketch:
 

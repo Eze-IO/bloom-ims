@@ -4,6 +4,7 @@ import { ENTITY, find } from "../lib/schema.js";
 import { Signed, qty } from "../lib/format.jsx";
 import { PageHead } from "../components/Layout.jsx";
 import DataTable from "../components/DataTable.jsx";
+import { STACK_CHIPS } from "../lib/stack.js";
 
 function Kpi({ label, value, sub }) {
   return (
@@ -48,6 +49,13 @@ export default function Dashboard() {
         <Kpi label="Shipments at sea" value={atSea} sub={`${db.bl.length - atSea} arrived`} />
         <Kpi label="Net deal P&L" value={<Signed value={gross} />} sub={`across ${db.link.length} deals, after fees`} />
       </div>
+
+      <section className="card stack-note" style={{ marginTop: 16 }} aria-label="Technology">
+        <span className="label">Under the hood</span>
+        <ul className="chips">{STACK_CHIPS.map((c) => <li key={c}>{c}</li>)}</ul>
+        <span className="muted" style={{ fontSize: 13 }}>Every number here comes from a SQLite database running in your browser.</span>
+        <Link to="/about">How it's built →</Link>
+      </section>
 
       <div className="grid two" style={{ marginTop: 16 }}>
         <section className="card">
