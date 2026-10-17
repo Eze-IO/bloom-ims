@@ -72,12 +72,6 @@ The data lives in a real **SQLite database**, and the database itself enforces t
 | Database | Microsoft SQL Server on Amazon RDS, in a private subnet |
 | Storage | Amazon S3 for configuration, profile pictures and database backups |
 
-![Original AWS architecture](public/docs/aws-architecture.png)
-
-The database started as a whiteboard sketch:
-
-![Whiteboard ERD](public/docs/whiteboard-erd.jpg)
-
 ## How this demo works
 
 The AWS environment has been shut down, so this repo rebuilds the app in **React** as a static site:
@@ -117,7 +111,6 @@ src/                       The React app
 db/                        SQLite schema and sample data
 scripts/build-db.mjs       Builds public/bloom.sqlite
 public/bloom.sqlite        The database the site loads
-public/docs/               Architecture diagram and whiteboard ERD
 original/database/         SQL Server scripts: schema, triggers, lookup data, sample data
 original/lambda-functions/ C# AWS Lambda functions (entities, reports, users, auth)
 ```
